@@ -1,6 +1,6 @@
 class Api::V1::ProductIngredientsController < ApplicationController
   def index
-    @product_ingredients = ::Query::SearchIngredient.new(query_param).call
+    @product_ingredients = ::Query::SearchIngredient.call(query: query_param)
 
     render json: @product_ingredients
   end

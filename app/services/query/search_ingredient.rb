@@ -2,7 +2,7 @@ module Query
   class SearchIngredient
     include Callable
 
-    def initialize(query)
+    def initialize(query:)
       @query = query
     end
 

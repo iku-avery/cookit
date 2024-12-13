@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Api::V1::ProductIngredients", type: :request do
   let!(:ingredient_1) { create(:product_ingredient, name: "Tomato") }
-  let!(:ingredient_2) { create(:product_ingredient, name: "Tomme") }
+  let!(:ingredient_2) { create(:product_ingredient, name: "Tomato sauce") }
   let!(:ingredient_3) { create(:product_ingredient, name: "Potato") }
 
   describe "GET /index" do
@@ -16,9 +16,9 @@ RSpec.describe "Api::V1::ProductIngredients", type: :request do
         result = JSON.parse(response.body)
 
         expect(result.size).to eq(2)
-        expect(result.map { |i| i["name"] }).to include("Tomato", "Tomme")
+        expect(result.map { |i| i["name"] }).to eq(["Tomato", "Tomato sauce"])
 
-        expect(::Query::SearchIngredient).to have_received(:new).with("tom")
+        expect(::Query::SearchIngredient).to have_received(:new).with(query: "tom")
       end
     end
 

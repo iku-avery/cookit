@@ -8,7 +8,7 @@ RSpec.describe Query::SearchIngredient, type: :service do
   describe '#call' do
     context 'when a query is provided' do
       let(:query) { "po" }
-      subject { described_class.new(query).call }
+      subject { described_class.call(query: query) }
 
       it 'returns ingredients that match the query' do
         result = subject
@@ -27,7 +27,7 @@ RSpec.describe Query::SearchIngredient, type: :service do
 
     context 'when no query is provided' do
       let(:query) { nil }
-      subject { described_class.new(query).call }
+      subject { described_class.call(query: query) }
 
       it 'returns an empty array' do
         result = subject
@@ -36,3 +36,4 @@ RSpec.describe Query::SearchIngredient, type: :service do
     end
   end
 end
+
