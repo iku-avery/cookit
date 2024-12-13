@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_09_203705) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_13_212221) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -48,6 +48,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_09_203705) do
     t.string "image_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["title", "author"], name: "index_recipes_on_title_and_author", unique: true
   end
 
   add_foreign_key "ingredients", "product_ingredients"
