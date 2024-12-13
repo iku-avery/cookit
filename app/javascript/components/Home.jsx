@@ -1,23 +1,38 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import SearchBar from './SearchBar';
 
-export default () => (
-  <div className="w-full h-screen flex items-center justify-center bg-primary">
-    <div className="bg-transparent p-8 rounded shadow-md w-full max-w-3xl">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-secondary">recipes</h1>
-        <p className="text-lg mt-4 mb-6 text-gray-700">
-        a carefully chosen collection of recipes to help you create the perfect homemade dinner with the ingredients you already have
-        </p>
-        <hr className="my-4 border-gray-300" />
-        <Link
-          to="/recipes"
-          className="inline-block px-6 py-3 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600 transition duration-300"
-          role="button"
-        >
-          view all recipes
-        </Link>
-      </div>
+const Homepage = () => {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-between bg-gradient-to-br from-primary to-blue-400 px-4 py-8">
+
+      {/* Header */}
+      <header className="bg-gradient-to-r from-teal-300 via-pink-300 to-yellow-300 text-center p-8 mb-8 w-full rounded-b-lg shadow-lg">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-extrabold text-gray-800 mb-4">
+            cook it!
+          </h1>
+          <p className="text-xl font-light text-gray-600">
+            find delicious recipes based on the ingredients you have at home 🍳🥦🍅
+          </p>
+        </div>
+      </header>
+
+      {/* Search Bar Section */}
+      <SearchBar />
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-purple-300 via-pink-300 to-yellow-200 text-center p-6 mt-8 w-full rounded-t-lg shadow-lg">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-gray-700 text-sm font-medium">
+            made with ❤️ by 🦝
+          </p>
+        </div>
+      </footer>
     </div>
-  </div>
-);
+  );
+};
+
+export default Homepage;
+
+
+
