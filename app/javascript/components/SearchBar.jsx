@@ -69,6 +69,15 @@ const SearchBar = () => {
     setSuggestions([]);
   };
 
+  // Handle ingredient removal from the selected list
+  const handleIngredientRemove = (ingredientId) => {
+    const updatedIngredients = selectedIngredients.filter(
+      (ingredient) => ingredient.id !== ingredientId
+    );
+    setSelectedIngredients(updatedIngredients);
+    fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType);
+  };
+
   // Handle match type change and re-fetch recipes
   const handleMatchTypeChange = (type) => {
     setMatchType(type);
@@ -79,7 +88,6 @@ const SearchBar = () => {
 
   return (
     <div className="w-full bg-white p-8 rounded-lg shadow-md max-w-full mt-8 mx-auto">
-
       {/* Input Field */}
       <div className="relative mb-6">
         <input
@@ -103,6 +111,29 @@ const SearchBar = () => {
           </ul>
         )}
       </div>
+
+      {/* Selected Ingredients Section */}
+      {selectedIngredients.length > 0 && (
+        <div className="mb-6">
+          <h5 className="font-semibold mb-2">Selected Ingredients:</h5>
+          <div className="flex flex-wrap gap-2">
+            {selectedIngredients.map((ingredient) => (
+              <div
+                key={ingredient.id}
+                className="flex items-center p-2 bg-blue-100 rounded-lg text-sm"
+              >
+                {ingredient.name}
+                <button
+                  onClick={() => handleIngredientRemove(ingredient.id)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Match Type Selection */}
       <div className="mb-6">
