@@ -29,7 +29,19 @@ Assuming you work on macOS and use [rvm]:
 
 3. Setup database:
     ```shell
-        rails db:create && rails db:migrate && rails db:seed
+        rails db:create && rails db:migrate
+    ```
+
+4. Fill the database
+
+    ```
+        rails 'recipes:import'
+    ```
+
+or setup limit and batch:
+
+    ```
+        rails 'recipes:import[500, 100]'
     ```
 
 

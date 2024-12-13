@@ -9,17 +9,21 @@ class RecipeBuilder
   def call
     ActiveRecord::Base.transaction do
       title = @data['title'].capitalize
+      author = @data['author']
       image_url = decode_image_url(@data['image'])
-      recipe = Recipe.create!(
-        title: title,
-        author: @data['author'],
-        rating: @data['ratings'],
-        category: @data['category'],
-        cuisine: @data['cuisine'],
-        cook_time: @data['cook_time'],
-        prep_time: @data['prep_time'],
-        image_url: image_url,
-      )
+
+      recipe = Recipe.find_or_initialize_by(title: title, author: author) do |r|
+        r.rating = @data['ratings']
+        r.category = @data['category']
+        r.cuisine = @data['cuisine']
+        r.cook_time = @data['cook_time']
+        r.prep_time = @data['prep_time']
+        r.image_url = image_url
+      end
+
+      if recipe.new_record?
+        recipe.save!
+      end
 
       ingredients = IngredientsBuilder.call(@data['ingredients'], recipe.id)
 
@@ -42,5 +46,5 @@ class RecipeBuilder
     query_params = URI.decode_www_form(uri.query).to_h
     query_params['url']
   end
-
 end
+
