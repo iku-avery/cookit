@@ -81,6 +81,8 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.5.1)
+    dockerfile-rails (1.6.25)
+      rails (>= 3.0.0)
     erubi (1.13.0)
     eye-of-newt (0.0.15)
       activesupport (>= 5)
@@ -241,6 +243,7 @@ DEPENDENCIES
   byebug
   cssbundling-rails
   debug
+  dockerfile-rails (>= 1.6)
   eye-of-newt (~> 0.0.15)
   factory_bot_rails
   ingreedy (~> 0.1.0)
@@ -260,4 +263,4 @@ RUBY VERSION
    ruby 3.2.2p53
 
 BUNDLED WITH
-   2.5.18
+   2.4.10
