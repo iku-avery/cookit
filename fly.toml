@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for cookit on 2024-12-15T19:43:42Z
+# fly.toml app configuration file generated for cookit on 2024-12-16T13:57:42Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'cookit'
-primary_region = 'waw'
+primary_region = 'arn'
 console_command = '/rails/bin/rails console'
 
 [build]
