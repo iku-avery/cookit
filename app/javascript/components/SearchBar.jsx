@@ -11,9 +11,10 @@ const SearchBar = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const perPage = 10; // You can change this number for the number of recipes per page.
+  const [searchTriggered, setSearchTriggered] = useState(false); // Track if search was clicked
+  const perPage = 10;
 
-  // Function to fetch ingredient suggestions based on query
+  // Fetch suggestions based on query input
   const fetchSuggestions = async (query) => {
     try {
       const response = await fetch(`/api/v1/product_ingredients?query=${query}`);
@@ -27,10 +28,10 @@ const SearchBar = () => {
     }
   };
 
-  // Function to fetch recipes based on selected ingredients and match type
+  // Fetch recipes based on selected ingredients and match type
   const fetchRecipes = async (ingredientIds, matchType, page = 1, perPage = 10) => {
     if (ingredientIds.length === 0) {
-      setRecipes([]);
+      setRecipes([]); // If no ingredients are selected, clear recipes
       return;
     }
 
@@ -41,7 +42,6 @@ const SearchBar = () => {
       );
       if (!response.ok) throw new Error('Failed to fetch recipes.');
       const data = await response.json();
-
       const totalCount = data.total_count;
       setRecipes(data.recipes);
       setTotalPages(Math.ceil(totalCount / perPage));
@@ -54,7 +54,7 @@ const SearchBar = () => {
     }
   };
 
-  // Handle the search input and trigger suggestions fetching
+  // Trigger fetching suggestions when typing in the input
   useEffect(() => {
     if (queryInput.length >= 2) {
       const debounceTimeout = setTimeout(() => fetchSuggestions(queryInput), 300);
@@ -64,31 +64,48 @@ const SearchBar = () => {
     }
   }, [queryInput]);
 
-  // Handle ingredient selection and fetch recipes accordingly
+  // Trigger fetching recipes when selected ingredients or match type changes
+  useEffect(() => {
+    if (selectedIngredients.length > 0) {
+      fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, currentPage);
+    }
+  }, [selectedIngredients, matchType, currentPage]);
+
+  // Handle ingredient selection
   const handleIngredientSelect = (ingredient) => {
     if (!selectedIngredients.some((ing) => ing.id === ingredient.id)) {
-      const updatedIngredients = [...selectedIngredients, ingredient];
-      setSelectedIngredients(updatedIngredients);
-      fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage);
+      setSelectedIngredients([...selectedIngredients, ingredient]);
     }
     setQueryInput('');
     setSuggestions([]);
+    setSearchTriggered(true); // Trigger search when an ingredient is selected
   };
 
-  // Handle ingredient removal from the selected list
+  // Handle ingredient removal
   const handleIngredientRemove = (ingredientId) => {
     const updatedIngredients = selectedIngredients.filter(
       (ingredient) => ingredient.id !== ingredientId
     );
     setSelectedIngredients(updatedIngredients);
-    fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage);
+
+    // If no ingredients are left, stop showing recipes and hide "No recipes found"
+    if (updatedIngredients.length === 0) {
+      setRecipes([]); // Clear recipes if all ingredients are removed
+    } else {
+      fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage); // Fetch new recipes
+    }
   };
 
-  // Handle match type change and re-fetch recipes
+  // Handle match type change
   const handleMatchTypeChange = (type) => {
     setMatchType(type);
+  };
+
+  // Handle search button click to fetch recipes
+  const handleSearchClick = () => {
+    setSearchTriggered(true); // Set searchTriggered to true when the search button is clicked
     if (selectedIngredients.length > 0) {
-      fetchRecipes(selectedIngredients.map((ing) => ing.id), type, currentPage);
+      fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, currentPage);
     }
   };
 
@@ -106,13 +123,13 @@ const SearchBar = () => {
       <div className="relative mb-6">
         <input
           type="text"
-          className="w-full p-4 pl-6 pr-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition-all duration-300 ease-in-out"
+          className="w-full p-4 pl-6 pr-6 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm text-lg transition-all duration-300 ease-in-out"
           placeholder="Search for ingredients..."
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
         />
         {queryInput.length >= 3 && suggestions.length > 0 && (
-          <ul className="absolute bg-white shadow-lg rounded-lg w-full mt-2 max-h-60 overflow-y-auto z-10 border border-gray-300 rounded-lg">
+          <ul className="absolute bg-white shadow-lg rounded-lg w-full mt-2 max-h-60 overflow-y-auto z-10 border border-gray-300">
             {suggestions.map((ingredient) => (
               <li
                 key={ingredient.id}
@@ -134,7 +151,7 @@ const SearchBar = () => {
             {selectedIngredients.map((ingredient) => (
               <div
                 key={ingredient.id}
-                className="flex items-center p-2 bg-blue-100 rounded-lg text-sm"
+                className="flex items-center p-2 bg-purple-100 rounded-lg text-sm"
               >
                 {ingredient.name}
                 <button
@@ -177,16 +194,29 @@ const SearchBar = () => {
         </div>
       </div>
 
+      {/* Search Button */}
+      <button
+        onClick={handleSearchClick}
+        className="w-auto px-6 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white rounded-lg shadow-md hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 focus:outline-none text-sm flex items-center justify-center mx-auto space-x-2 transition duration-300 ease-in-out"
+      >
+        <span>Search Recipes</span>
+      </button>
+
       {/* Recipes Section */}
-      <RecipesSection
-        recipes={recipes}
-        loading={loadingRecipes}
-        error={error}
-        showNoResults={selectedIngredients.length > 0 && recipes.length === 0}
-      />
+      {selectedIngredients.length === 0 ? null : (
+        <>
+          {recipes.length === 0 && searchTriggered && !loadingRecipes ? (
+            <div className="text-center mt-4 text-gray-600 text-lg">
+              No recipes found with the selected ingredients.
+            </div>
+          ) : (
+            <RecipesSection recipes={recipes} loading={loadingRecipes} error={error} />
+          )}
+        </>
+      )}
 
       {/* Pagination UI */}
-      {totalPages > 1 && (
+      {totalPages > 1 && selectedIngredients.length > 0 && (
         <div className="flex justify-center mt-6">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
@@ -210,3 +240,4 @@ const SearchBar = () => {
 };
 
 export default SearchBar;
+
