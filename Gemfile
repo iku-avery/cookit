@@ -43,6 +43,9 @@ gem "jbuilder"
 gem 'eye-of-newt', '~> 0.0.15'
 gem 'ingreedy', '~> 0.1.0'
 
+# Pagination
+gem 'kaminari'
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 

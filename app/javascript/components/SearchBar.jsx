@@ -9,6 +9,9 @@ const SearchBar = () => {
   const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [matchType, setMatchType] = useState('all');
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const perPage = 10; // You can change this number for the number of recipes per page.
 
   // Function to fetch ingredient suggestions based on query
   const fetchSuggestions = async (query) => {
@@ -25,7 +28,7 @@ const SearchBar = () => {
   };
 
   // Function to fetch recipes based on selected ingredients and match type
-  const fetchRecipes = async (ingredientIds, matchType) => {
+  const fetchRecipes = async (ingredientIds, matchType, page = 1, perPage = 10) => {
     if (ingredientIds.length === 0) {
       setRecipes([]);
       return;
@@ -34,11 +37,14 @@ const SearchBar = () => {
     setLoadingRecipes(true);
     try {
       const response = await fetch(
-        `/api/v1/recipes?ingredient_ids=${encodeURIComponent(ingredientIds.join(','))}&match_type=${matchType}`
+        `/api/v1/recipes?ingredient_ids=${encodeURIComponent(ingredientIds.join(','))}&match_type=${matchType}&page=${page}&per_page=${perPage}`
       );
       if (!response.ok) throw new Error('Failed to fetch recipes.');
       const data = await response.json();
-      setRecipes(data);
+
+      const totalCount = data.total_count;
+      setRecipes(data.recipes);
+      setTotalPages(Math.ceil(totalCount / perPage));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -63,7 +69,7 @@ const SearchBar = () => {
     if (!selectedIngredients.some((ing) => ing.id === ingredient.id)) {
       const updatedIngredients = [...selectedIngredients, ingredient];
       setSelectedIngredients(updatedIngredients);
-      fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType);
+      fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage);
     }
     setQueryInput('');
     setSuggestions([]);
@@ -75,14 +81,22 @@ const SearchBar = () => {
       (ingredient) => ingredient.id !== ingredientId
     );
     setSelectedIngredients(updatedIngredients);
-    fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType);
+    fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage);
   };
 
   // Handle match type change and re-fetch recipes
   const handleMatchTypeChange = (type) => {
     setMatchType(type);
     if (selectedIngredients.length > 0) {
-      fetchRecipes(selectedIngredients.map((ing) => ing.id), type);
+      fetchRecipes(selectedIngredients.map((ing) => ing.id), type, currentPage);
+    }
+  };
+
+  // Pagination handlers
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, newPage);
     }
   };
 
@@ -170,6 +184,27 @@ const SearchBar = () => {
         error={error}
         showNoResults={selectedIngredients.length > 0 && recipes.length === 0}
       />
+
+      {/* Pagination UI */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border rounded-md mr-2"
+          >
+            Previous
+          </button>
+          <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border rounded-md ml-2"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

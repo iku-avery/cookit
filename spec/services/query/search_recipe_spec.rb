@@ -12,15 +12,18 @@ RSpec.describe Query::SearchRecipe, type: :service do
   let!(:ingredient3) { create(:ingredient, recipe: recipe3, product_ingredient: product_ingredient1) }
   let!(:ingredient4) { create(:ingredient, recipe: recipe3, product_ingredient: product_ingredient2) }
 
+  let(:page) { 1 }
+  let(:per_page) { 10 }
+
   describe '#call' do
     context 'when match_type is "any"' do
       it 'returns recipes with any of the given ingredient_ids' do
         ingredient_ids = [product_ingredient1.id]
 
-        result = Query::SearchRecipe.call(ingredient_ids: ingredient_ids, match_type: 'any')
+        result = Query::SearchRecipe.call(ingredient_ids: ingredient_ids, match_type: 'any', page: page, per_page: per_page)
 
-        expect(result).to include(recipe1, recipe3)
-        expect(result).not_to include(recipe2)
+        expect(result[:recipes]).to include(recipe1, recipe3)
+        expect(result[:recipes]).not_to include(recipe2)
       end
     end
 
@@ -28,25 +31,24 @@ RSpec.describe Query::SearchRecipe, type: :service do
       it 'returns recipes with all of the given ingredient_ids' do
         ingredient_ids = [product_ingredient1.id, product_ingredient2.id]
 
-        result = Query::SearchRecipe.call(ingredient_ids: ingredient_ids, match_type: 'all')
+        result = Query::SearchRecipe.call(ingredient_ids: ingredient_ids, match_type: 'all', page: page, per_page: per_page)
 
-        expect(result).to include(recipe3)
-
-        expect(result).not_to include(recipe1, recipe2)
+        expect(result[:recipes]).to include(recipe3)
+        expect(result[:recipes]).not_to include(recipe1, recipe2)
       end
     end
 
     context 'when ingredient_ids are blank' do
       it 'returns an empty array' do
-        result = Query::SearchRecipe.call(ingredient_ids: [], match_type: 'any')
-        expect(result).to eq([])
+        result = Query::SearchRecipe.call(ingredient_ids: [], match_type: 'any', page: page, per_page: per_page)
+        expect(result[:recipes]).to eq([])
       end
     end
 
     context 'when an invalid match_type is provided' do
       it 'returns an empty array' do
-        result = Query::SearchRecipe.call(ingredient_ids: [product_ingredient1.id], match_type: 'invalid')
-        expect(result).to eq([])
+        result = Query::SearchRecipe.call(ingredient_ids: [product_ingredient1.id], match_type: 'invalid', page: page, per_page: per_page)
+        expect(result[:recipes]).to eq([])
       end
     end
   end
