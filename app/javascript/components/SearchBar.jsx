@@ -11,7 +11,7 @@ const SearchBar = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTriggered, setSearchTriggered] = useState(false); // Track if search was clicked
+  const [searchTriggered, setSearchTriggered] = useState(false);
   const perPage = 10;
 
   // Fetch suggestions based on query input
@@ -30,6 +30,7 @@ const SearchBar = () => {
 
   // Fetch recipes based on selected ingredients and match type
   const fetchRecipes = async (ingredientIds, matchType, page = 1, perPage = 10) => {
+    setRecipes([]); // Clear recipes before fetching
     if (ingredientIds.length === 0) {
       setRecipes([]); // If no ingredients are selected, clear recipes
       return;
@@ -42,9 +43,8 @@ const SearchBar = () => {
       );
       if (!response.ok) throw new Error('Failed to fetch recipes.');
       const data = await response.json();
-      const totalCount = data.total_count;
       setRecipes(data.recipes);
-      setTotalPages(Math.ceil(totalCount / perPage));
+      setTotalPages(Math.ceil(data.total_count / perPage));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -54,7 +54,7 @@ const SearchBar = () => {
     }
   };
 
-  // Trigger fetching suggestions when typing in the input
+  // Debounce fetching suggestions when typing in the input
   useEffect(() => {
     if (queryInput.length >= 2) {
       const debounceTimeout = setTimeout(() => fetchSuggestions(queryInput), 300);
@@ -64,12 +64,20 @@ const SearchBar = () => {
     }
   }, [queryInput]);
 
-  // Trigger fetching recipes when selected ingredients or match type changes
+  // Reset page and fetch recipes when selected ingredients or match type changes
+  useEffect(() => {
+    if (selectedIngredients.length > 0) {
+      setCurrentPage(1);
+      fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, 1);
+    }
+  }, [selectedIngredients, matchType]);
+
+  // Fetch recipes when current page changes
   useEffect(() => {
     if (selectedIngredients.length > 0) {
       fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, currentPage);
     }
-  }, [selectedIngredients, matchType, currentPage]);
+  }, [currentPage]);
 
   // Handle ingredient selection
   const handleIngredientSelect = (ingredient) => {
@@ -78,7 +86,7 @@ const SearchBar = () => {
     }
     setQueryInput('');
     setSuggestions([]);
-    setSearchTriggered(true); // Trigger search when an ingredient is selected
+    setSearchTriggered(true);
   };
 
   // Handle ingredient removal
@@ -88,11 +96,10 @@ const SearchBar = () => {
     );
     setSelectedIngredients(updatedIngredients);
 
-    // If no ingredients are left, stop showing recipes and hide "No recipes found"
     if (updatedIngredients.length === 0) {
-      setRecipes([]); // Clear recipes if all ingredients are removed
+      setRecipes([]);
     } else {
-      fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage); // Fetch new recipes
+      fetchRecipes(updatedIngredients.map((ing) => ing.id), matchType, currentPage);
     }
   };
 
@@ -101,9 +108,9 @@ const SearchBar = () => {
     setMatchType(type);
   };
 
-  // Handle search button click to fetch recipes
+  // Handle search button click
   const handleSearchClick = () => {
-    setSearchTriggered(true); // Set searchTriggered to true when the search button is clicked
+    setSearchTriggered(true);
     if (selectedIngredients.length > 0) {
       fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, currentPage);
     }
@@ -113,7 +120,6 @@ const SearchBar = () => {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchRecipes(selectedIngredients.map((ing) => ing.id), matchType, newPage);
     }
   };
 
@@ -128,7 +134,7 @@ const SearchBar = () => {
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
         />
-        {queryInput.length >= 3 && suggestions.length > 0 && (
+        {queryInput.length >= 2 && suggestions.length > 0 && (
           <ul className="absolute bg-white shadow-lg rounded-lg w-full mt-2 max-h-60 overflow-y-auto z-10 border border-gray-300">
             {suggestions.map((ingredient) => (
               <li
@@ -240,4 +246,3 @@ const SearchBar = () => {
 };
 
 export default SearchBar;
-
