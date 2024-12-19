@@ -26,9 +26,10 @@ module Query
 
     def by_product_ingredients
       recipes = Recipe
-        .includes(:ingredients)
+        .joins(:ingredients)
         .where(ingredients: { product_ingredient_id: @ingredient_ids })
         .distinct
+        .preload(:ingredients) # preload ingredients if needed
         .order(:title)
         .select(
           'recipes.id',

@@ -10,8 +10,19 @@ class Api::V1::RecipesController < ApplicationController
       per_page: per_page
     )
 
+    # Convert ingredient amounts to fractions before sending them to the frontend
+    recipes_with_converted_ingredients = result[:recipes].map do |recipe|
+      recipe.as_json(include: :ingredients).merge(
+        'ingredients' => recipe.ingredients.map do |ingredient|
+          ingredient.as_json.merge(
+            'amount' => FractionConverter.convert_to_fraction(ingredient.amount)
+          )
+        end
+      )
+    end
+
     render json: {
-      recipes: result[:recipes].as_json(include: :ingredients),
+      recipes: recipes_with_converted_ingredients,
       total_count: result[:total_count],
       total_pages: result[:total_pages],
       current_page: result[:current_page]
