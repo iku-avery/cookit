@@ -29,7 +29,7 @@ const SearchBar = () => {
   };
 
   // Fetch recipes based on selected ingredients and match type
-  const fetchRecipes = async (ingredientIds, matchType, page = 1, perPage = 10) => {
+  const fetchRecipes = async (ingredientIds, matchType, page = 1, perPage = 12) => {
     setRecipes([]); // Clear recipes before fetching
     if (ingredientIds.length === 0) {
       setRecipes([]); // If no ingredients are selected, clear recipes

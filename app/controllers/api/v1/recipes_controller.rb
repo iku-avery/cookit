@@ -1,6 +1,6 @@
 class Api::V1::RecipesController < ApplicationController
   DEFAULT_MATCH_TYPE = 'all'
-  DEFAULT_PER_PAGE = 10
+  DEFAULT_PER_PAGE = 12
 
   def index
     result = ::Query::SearchRecipe.call(
