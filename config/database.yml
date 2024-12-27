@@ -84,3 +84,4 @@ production:
   database: cookit_production
   username: cookit
   password: <%= ENV["COOKIT_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
