@@ -1,5 +1,26 @@
 # README
 
+User Stories
+
+1. Find Recipes by all selected ingredients
+As a user, I want to search for recipes that match all the ingredients I have so that I can discover meals I can fully prepare.
+I can input multiple ingredients, and the app will show only recipes that include all of them.
+
+2. Find recipes by at least one ingredient
+As a user, I want to find recipes that match at least one of my ingredients so that I can make use of what I have at home.
+
+3. Ingredient suggestions
+As a user, I want real-time suggestions while typing ingredients so that I can quickly find and add them without typing full names.
+
+
+Future Enhancements
+Expand ingredient matching to group similar items (e.g., flour matches oat flour).
+Improve relevance ranking for recipes with partial ingredient matches.
+Add sorting options (e.g., by preparation time, popularity).
+Introduce filtering (e.g., vegetarian recipes, difficulty level).
+
+The database is pre-filled with a small sample of recipes for demonstration purposes.
+
 ### Dependencies
 
 - Ruby (3.2.2 recommended)
